@@ -1,0 +1,45 @@
+#!/usr/bin/bash
+#set -x
+##############################################
+## control gpio pin for TX wsjtx
+## 2025-06-06 v2
+##############################################
+FILE_PATH="/home/jos/.local/share/WSJT-X/"
+FILE="ALL.TXT"
+MYCALL="$1"
+CALL=""
+
+#functions
+
+TX_WINDOW () {
+ echo dummy
+}
+
+tail -1f "$FILE_PATH""$FILE" | while read -r LINE ; do
+     LINE=$(grep "$MYCALL" <<< "$LINE")
+     # select Field 9 in logfile 
+     CALL=$(echo $LINE | cut -d' ' -f9 -)
+     # Is field 9 MYCALL
+     if [ "$CALL" = "$MYCALL" ] ; then
+ 	#set -x
+        # activate ptt
+ 	pinctrl set 18 op dh
+	# Set duration TX-Window
+        SEC="$(date +%S)"
+        case $SEC in
+             00|01|02|03|04|05|06|07|08|09|10|11|12|13|14) SLEEP=$(expr 15 - "$SEC") ;;
+             15|16|17|18|19|20|21|22|23|24|25|26|27|28|29) SLEEP=$(expr 30 - "$SEC") ;;
+             30|31|32|33|34|35|36|37|38|39|40|41|42|43|44) SLEEP=$(expr 45 - "$SEC") ;;
+             45|46|47|48|49|50|51|52|53|54|55|56|57|58|59) SLEEP=$(expr 60 - "$SEC") ;;
+             *) SLEEP=0 ;;
+        esac
+        #keep high in tx window 
+ 	sleep "$SLEEP"
+        #set +x
+ 	# deactivate ptt
+ 	pinctrl set 18 op dl
+     fi
+done
+exit 0
+
+
