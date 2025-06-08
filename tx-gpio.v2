@@ -4,22 +4,21 @@
 ## control gpio pin for TX wsjtx
 ## 2025-06-06 v2
 ##############################################
-FILE_PATH="/home/jos/.local/share/WSJT-X/"
+FILE_PATH="/home/user/.local/share/WSJT-X/"
 FILE="ALL.TXT"
 MYCALL="$1"
 CALL=""
 
 #functions
-
 TX_WINDOW () {
  echo dummy
 }
 
 tail -1f "$FILE_PATH""$FILE" | while read -r LINE ; do
      LINE=$(grep "$MYCALL" <<< "$LINE")
-     # select Field 9 in logfile 
+     # select Field9 in logfile 
      CALL=$(echo $LINE | cut -d' ' -f9 -)
-     # Is field 9 MYCALL
+     # Is field9 MYCALL
      if [ "$CALL" = "$MYCALL" ] ; then
  	#set -x
         # activate ptt
@@ -33,7 +32,7 @@ tail -1f "$FILE_PATH""$FILE" | while read -r LINE ; do
              45|46|47|48|49|50|51|52|53|54|55|56|57|58|59) SLEEP=$(expr 60 - "$SEC") ;;
              *) SLEEP=0 ;;
         esac
-        #keep high in tx window 
+        #keep gpio high in tx window 
  	sleep "$SLEEP"
         #set +x
  	# deactivate ptt
